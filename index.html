@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Pookie ❤️</title>
+    <style>
+        body { background-color: #ffffff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; color: #333; }
+        .phone-container { width: 320px; height: 620px; background: white; border-radius: 40px; border: 8px solid #333; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; z-index: 10; }
+        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box; }
+        .active { display: flex; }
+        #notification { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; border-left: 5px solid #ffb6c1; width: 240px; text-align: left; animation: slideIn 0.8s ease-out, shake 0.6s infinite alternate; }
+        @keyframes shake { from { transform: rotate(-1deg); } to { transform: rotate(1deg); } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .horizontal-line { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .reveal-btn { background: #ffb6c1; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #game-box { width: 100%; height: 180px; background: #fff5f7; border: 2px dashed #ffb6c1; border-radius: 20px; position: relative; overflow: hidden; margin: 15px 0; }
+        .moving-kitty { width: 45px; position: absolute; cursor: pointer; transition: 0.2s; }
+        #gallery-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #fff0f3; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .pookie-header { color: #ff85a2; font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .stack { position: relative; height: 350px; width: 280px; perspective: 1000px; }
+        .card { position: absolute; width: 100%; height: 100%; background: white; border-radius: 15px; border: 8px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background-size: cover; background-position: center; transition: transform 0.6s, opacity 0.6s; cursor: pointer; }
+        .replay-btn { background: #ff85a2; color: white; border: none; padding: 10px 20px; border-radius: 20px; margin-top: 40px; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+    <audio id="bg-music" src="music.mp3" loop></audio>
+    <div class="phone-container" id="phone">
+        <div id="s1" class="screen active" style="background: #fffafa;">
+            <div id="notification" onclick="startExperience()">
+                <strong>from Ayush 💕</strong>
+                <p style="margin: 5px 0 0 0; font-size: 0.8rem;">I have smth for you Kajal <3</p>
+            </div>
+        </div>
+        <div id="s2" class="screen">
+            <h2 style="color: #ff85a2;">I'm sorry pookie... 🥺</h2>
+            <img src="bear-sad.gif" style="width: 150px;">
+            <button class="reveal-btn" onclick="next(3)">Open My Message ✉️</button>
+        </div>
+        <div id="s3" class="screen">
+            <h2 style="color: #ffb6c1;">A gift for you!</h2>
+            <button style="background:none; border:none; cursor:pointer;" onclick="next(4)">
+                <img src="gift-box.gif" style="width: 180px;">
+                <p style="color: #ffb6c1; font-weight: bold;">Tap to Open 🎁</p>
+            </button>
+        </div>
+        <div id="s4" class="screen" style="background: #fff0f3;">
+            <h2 style="color: #ff85a2;">I LOVE YOU ❤️</h2>
+            <div class="horizontal-line">
+                <img src="flower.jpg" style="width:110px;">
+                <img src="cat-balloons.png" style="width:90px;">
+            </div>
+            <img src="bear-hug.gif" style="width:120px;">
+            <button class="reveal-btn" onclick="next(5)">For My Pookie ✨</button>
+        </div>
+        <div id="s5" class="screen">
+            <h2 style="color: #ff85a2;">Catch 10 kitties!</h2>
+            <div id="game-box">
+                <img src="images/kitty.jpg" id="target" class="moving-kitty" onclick="catchKitty()">
+            </div>
+            <div style="font-weight: bold; color: #ff85a2;">Caught: <span id="count">0</span>/10</div>
+        </div>
+    </div>
+    <div id="gallery-overlay">
+        <div class="pookie-header">Our Sweet Memories</div>
+        <div id="photo-stack" class="stack"></div>
+        <button id="final-replay" class="replay-btn" onclick="location.reload()">Replay ❤️</button>
+    </div>
+    <script>
+        let catchCount = 0;
+        let cardCount = 9;
+        function startExperience() { document.getElementById('bg-music').play().catch(e => {}); next(2); }
+        function next(num) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(num === 7) { document.getElementById('phone').style.display = 'none'; document.getElementById('gallery-overlay').style.display = 'flex'; loadGallery(); }
+            else { document.getElementById('s' + num).classList.add('active'); if(num === 5) moveKitty(); }
+        }
+        function moveKitty() {
+            const target = document.getElementById('target'), box = document.getElementById('game-box');
+            target.style.left = Math.random() * (box.clientWidth - 40) + 'px';
+            target.style.top = Math.random() * (box.clientHeight - 40) + 'px';
+        }
+        function catchKitty() {
+            catchCount++; document.getElementById('count').innerText = catchCount;
+            if(catchCount >= 10) next(7); else moveKitty();
+        }
+        function loadGallery() {
+            const stack = document.getElementById('photo-stack');
+            for(let i = 1; i <= 9; i++) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.backgroundImage = `url('images/${i}.jpg')`; 
+                card.style.zIndex = 20 - i;
+                card.onclick = function() {
+                    this.style.transform = "translateX(150%) rotate(30deg)"; this.style.opacity = "0";
+                    cardCount--; if(cardCount === 0) document.getElementById('final-replay').style.display = 'block';
+                    setTimeout(() => this.remove(), 600);
+                };
+                stack.appendChild(card);
+            }
+        }
+    </script>
+</body>
+</html>
